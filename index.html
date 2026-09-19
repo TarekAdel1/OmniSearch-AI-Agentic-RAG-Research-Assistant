@@ -1,0 +1,4216 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>OmniSearch AI</title>
+
+    <!-- =====================================================
+         FONTS
+    ====================================================== -->
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+
+    <link
+        rel="preconnect"
+        href="https://fonts.gstatic.com"
+        crossorigin
+    >
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet"
+    >
+
+    <!-- =====================================================
+         ICONS
+    ====================================================== -->
+
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- =====================================================
+         MARKDOWN
+    ====================================================== -->
+
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+
+    <style>
+
+        :root {
+
+            --bg: #07090d;
+            --bg-secondary: #0b0e14;
+
+            --panel: rgba(16, 20, 28, 0.78);
+            --panel-solid: #10141c;
+            --panel-hover: #151a24;
+
+            --border: rgba(255, 255, 255, 0.08);
+            --border-light: rgba(255, 255, 255, 0.12);
+
+            --text: #f4f6fa;
+            --text-secondary: #a4adbb;
+            --text-muted: #697386;
+
+            --accent: #7c6cff;
+            --accent-light: #9b8fff;
+
+            --accent-soft:
+                rgba(124, 108, 255, 0.12);
+
+            --success: #38d996;
+            --danger: #ff647c;
+
+            --radius: 16px;
+            --radius-small: 11px;
+
+            --shadow:
+                0 20px 70px rgba(0, 0, 0, 0.35);
+        }
+
+
+        * {
+            box-sizing: border-box;
+        }
+
+
+        html,
+        body {
+
+            margin: 0;
+            padding: 0;
+
+            width: 100%;
+            height: 100%;
+        }
+
+
+        body {
+
+            font-family:
+                "Inter",
+                sans-serif;
+
+            background:
+                radial-gradient(
+                    circle at 50% -10%,
+                    rgba(124, 108, 255, 0.12),
+                    transparent 38%
+                ),
+                var(--bg);
+
+            color: var(--text);
+
+            overflow: hidden;
+        }
+
+
+        button,
+        input,
+        textarea {
+            font: inherit;
+        }
+
+
+        button {
+            cursor: pointer;
+        }
+
+
+        /* =====================================================
+           APP
+        ===================================================== */
+
+        .app {
+
+            display: grid;
+
+            grid-template-columns:
+                280px minmax(0, 1fr);
+
+            width: 100%;
+            height: 100vh;
+        }
+
+
+        /* =====================================================
+           SIDEBAR
+        ===================================================== */
+
+        .sidebar {
+
+            display: flex;
+            flex-direction: column;
+
+            gap: 22px;
+
+            padding: 22px 16px;
+
+            background:
+                linear-gradient(
+                    180deg,
+                    rgba(14, 17, 24, 0.96),
+                    rgba(8, 10, 14, 0.98)
+                );
+
+            border-right:
+                1px solid var(--border);
+
+            overflow-y: auto;
+        }
+
+
+        .brand {
+
+            display: flex;
+            align-items: center;
+
+            gap: 12px;
+
+            padding: 4px 8px;
+        }
+
+
+        .brand-icon {
+
+            display: grid;
+            place-items: center;
+
+            width: 38px;
+            height: 38px;
+
+            border-radius: 12px;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    var(--accent),
+                    #4d8dff
+                );
+
+            box-shadow:
+                0 8px 30px
+                rgba(124, 108, 255, 0.25);
+        }
+
+
+        .brand-icon svg {
+
+            width: 20px;
+            height: 20px;
+        }
+
+
+        .brand-name {
+
+            font-size: 16px;
+            font-weight: 800;
+
+            letter-spacing: -0.3px;
+        }
+
+
+        .brand-subtitle {
+
+            margin-top: 2px;
+
+            font-size: 11px;
+
+            color: var(--text-muted);
+        }
+
+
+        .new-chat-btn {
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            gap: 9px;
+
+            width: 100%;
+
+            padding: 12px 14px;
+
+            border:
+                1px solid var(--border-light);
+
+            border-radius: 12px;
+
+            background:
+                rgba(255, 255, 255, 0.04);
+
+            color: var(--text);
+
+            transition: 0.2s ease;
+        }
+
+
+        .new-chat-btn:hover {
+
+            background:
+                rgba(255, 255, 255, 0.08);
+
+            transform:
+                translateY(-1px);
+        }
+
+
+        .sidebar-section {
+
+            display: flex;
+            flex-direction: column;
+
+            gap: 10px;
+        }
+
+
+        .section-title {
+
+            padding: 0 8px;
+
+            font-size: 10px;
+            font-weight: 700;
+
+            text-transform: uppercase;
+
+            letter-spacing: 0.12em;
+
+            color: var(--text-muted);
+        }
+
+
+        .document-panel {
+
+            padding: 13px;
+
+            border:
+                1px solid var(--border);
+
+            border-radius: 14px;
+
+            background:
+                rgba(255, 255, 255, 0.025);
+        }
+
+
+        .document-header {
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: space-between;
+
+            margin-bottom: 12px;
+        }
+
+
+        .document-count {
+
+            font-size: 12px;
+
+            color: var(--text-secondary);
+        }
+
+
+        .upload-btn {
+
+            display: inline-flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            gap: 7px;
+
+            width: 100%;
+
+            padding: 10px;
+
+            border:
+                1px dashed
+                rgba(124, 108, 255, 0.45);
+
+            border-radius: 11px;
+
+            background:
+                var(--accent-soft);
+
+            color: var(--accent-light);
+
+            font-size: 12px;
+
+            font-weight: 600;
+
+            transition: 0.2s ease;
+        }
+
+
+        .upload-btn:hover {
+
+            background:
+                rgba(124, 108, 255, 0.18);
+
+            border-color:
+                rgba(124, 108, 255, 0.7);
+        }
+
+
+        .file-list {
+
+            display: flex;
+
+            flex-direction: column;
+
+            gap: 7px;
+
+            margin-top: 10px;
+
+            max-height: 220px;
+
+            overflow-y: auto;
+        }
+
+
+        .file-item {
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 9px;
+
+            padding: 8px;
+
+            border-radius: 9px;
+
+            background:
+                rgba(255, 255, 255, 0.035);
+
+            font-size: 11px;
+
+            color: var(--text-secondary);
+        }
+
+
+        .file-item svg {
+
+            flex-shrink: 0;
+
+            width: 14px;
+
+            color: #ff7189;
+        }
+
+
+        .file-name {
+
+            overflow: hidden;
+
+            white-space: nowrap;
+
+            text-overflow: ellipsis;
+        }
+
+
+        .empty-files {
+
+            padding: 8px 2px;
+
+            font-size: 11px;
+
+            line-height: 1.5;
+
+            color: var(--text-muted);
+        }
+
+
+        .sidebar-bottom {
+
+            margin-top: auto;
+        }
+
+
+        .danger-btn {
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            gap: 8px;
+
+            width: 100%;
+
+            padding: 10px;
+
+            border:
+                1px solid
+                rgba(255, 100, 124, 0.18);
+
+            border-radius: 11px;
+
+            background:
+                rgba(255, 100, 124, 0.05);
+
+            color: #ff8296;
+
+            font-size: 12px;
+
+            transition: 0.2s ease;
+        }
+
+
+        .danger-btn:hover {
+
+            background:
+                rgba(255, 100, 124, 0.1);
+        }
+
+
+        /* =====================================================
+           MAIN
+        ===================================================== */
+
+        .main {
+
+            position: relative;
+
+            display: flex;
+
+            flex-direction: column;
+
+            min-width: 0;
+
+            height: 100vh;
+
+            background:
+                radial-gradient(
+                    circle at 50% 0%,
+                    rgba(124, 108, 255, 0.06),
+                    transparent 35%
+                );
+        }
+
+
+        .topbar {
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: space-between;
+
+            height: 66px;
+
+            padding: 0 28px;
+
+            border-bottom:
+                1px solid var(--border);
+
+            background:
+                rgba(7, 9, 13, 0.65);
+
+            backdrop-filter:
+                blur(18px);
+        }
+
+
+        .topbar-title {
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 10px;
+
+            font-size: 13px;
+
+            font-weight: 600;
+        }
+
+
+        .status-dot {
+
+            width: 7px;
+            height: 7px;
+
+            border-radius: 50%;
+
+            background:
+                var(--success);
+
+            box-shadow:
+                0 0 0 4px
+                rgba(56, 217, 150, 0.08),
+
+                0 0 12px
+                rgba(56, 217, 150, 0.5);
+        }
+
+
+        .topbar-actions {
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 8px;
+        }
+
+
+        .icon-btn {
+
+            display: grid;
+
+            place-items: center;
+
+            width: 36px;
+            height: 36px;
+
+            border:
+                1px solid transparent;
+
+            border-radius: 10px;
+
+            background:
+                transparent;
+
+            color:
+                var(--text-secondary);
+
+            transition:
+                0.2s ease;
+        }
+
+
+        .icon-btn:hover {
+
+            border-color:
+                var(--border);
+
+            background:
+                rgba(255, 255, 255, 0.05);
+
+            color:
+                var(--text);
+        }
+
+
+        /* =====================================================
+           CHAT
+        ===================================================== */
+
+        .chat {
+
+            flex: 1;
+
+            overflow-y: auto;
+
+            scroll-behavior: smooth;
+        }
+
+
+        .chat-inner {
+
+            width:
+                min(900px, 100%);
+
+            margin:
+                0 auto;
+
+            padding:
+                48px 28px 170px;
+        }
+
+
+        /* =====================================================
+           WELCOME
+        ===================================================== */
+
+        .welcome {
+
+            display: flex;
+
+            flex-direction: column;
+
+            align-items: center;
+
+            padding:
+                55px 0 30px;
+
+            text-align: center;
+        }
+
+
+        .welcome-icon {
+
+            display: grid;
+
+            place-items: center;
+
+            width: 66px;
+            height: 66px;
+
+            margin-bottom: 22px;
+
+            border:
+                1px solid
+                rgba(124, 108, 255, 0.25);
+
+            border-radius: 21px;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    rgba(124, 108, 255, 0.18),
+                    rgba(77, 141, 255, 0.08)
+                );
+
+            color:
+                var(--accent-light);
+
+            box-shadow:
+                0 20px 50px
+                rgba(124, 108, 255, 0.12);
+        }
+
+
+        .welcome h1 {
+
+            margin: 0;
+
+            font-size:
+                clamp(28px, 4vw, 42px);
+
+            line-height: 1.08;
+
+            letter-spacing:
+                -1.6px;
+        }
+
+
+        .welcome h1 span {
+
+            background:
+                linear-gradient(
+                    90deg,
+                    #ffffff,
+                    #9d91ff
+                );
+
+            -webkit-background-clip:
+                text;
+
+            background-clip:
+                text;
+
+            color:
+                transparent;
+        }
+
+
+        .welcome p {
+
+            max-width:
+                570px;
+
+            margin:
+                16px 0 0;
+
+            color:
+                var(--text-secondary);
+
+            font-size:
+                14px;
+
+            line-height:
+                1.7;
+        }
+
+
+        /* =====================================================
+           SUGGESTIONS
+        ===================================================== */
+
+        .suggestions {
+
+            display: grid;
+
+            grid-template-columns:
+                repeat(2, 1fr);
+
+            gap: 10px;
+
+            width:
+                min(680px, 100%);
+
+            margin-top:
+                30px;
+        }
+
+
+        .suggestion {
+
+            display: flex;
+
+            align-items: flex-start;
+
+            gap: 11px;
+
+            padding: 13px;
+
+            border:
+                1px solid var(--border);
+
+            border-radius: 13px;
+
+            background:
+                rgba(255, 255, 255, 0.025);
+
+            color:
+                var(--text-secondary);
+
+            text-align:
+                left;
+
+            transition:
+                0.2s ease;
+        }
+
+
+        .suggestion:hover {
+
+            border-color:
+                rgba(124, 108, 255, 0.28);
+
+            background:
+                rgba(124, 108, 255, 0.06);
+
+            transform:
+                translateY(-2px);
+        }
+
+
+        .suggestion svg {
+
+            flex-shrink: 0;
+
+            margin-top: 1px;
+
+            color:
+                var(--accent-light);
+        }
+
+
+        .suggestion span {
+
+            font-size:
+                12px;
+
+            line-height:
+                1.45;
+        }
+
+
+        /* =====================================================
+           MESSAGES
+        ===================================================== */
+
+        .messages {
+
+            display: flex;
+
+            flex-direction: column;
+
+            gap: 25px;
+        }
+
+
+        .message {
+
+            display: flex;
+
+            gap: 12px;
+
+            animation:
+                messageIn 0.25s ease;
+        }
+
+
+        @keyframes messageIn {
+
+            from {
+
+                opacity: 0;
+
+                transform:
+                    translateY(8px);
+            }
+
+            to {
+
+                opacity: 1;
+
+                transform:
+                    translateY(0);
+            }
+        }
+
+
+        .message.user {
+
+            justify-content:
+                flex-end;
+        }
+
+
+        .avatar {
+
+            display: grid;
+
+            place-items: center;
+
+            flex-shrink: 0;
+
+            width: 32px;
+            height: 32px;
+
+            border-radius: 10px;
+
+            background:
+                rgba(255, 255, 255, 0.07);
+
+            color:
+                var(--text-secondary);
+        }
+
+
+        .assistant .avatar {
+
+            background:
+                linear-gradient(
+                    135deg,
+                    var(--accent),
+                    #4d8dff
+                );
+
+            color:
+                white;
+        }
+
+
+        .message-content {
+
+            max-width:
+                min(760px, 85%);
+        }
+
+
+        .user .message-content {
+
+            max-width:
+                min(650px, 85%);
+        }
+
+
+        .message-label {
+
+            margin-bottom:
+                5px;
+
+            font-size:
+                10px;
+
+            font-weight:
+                700;
+
+            letter-spacing:
+                0.08em;
+
+            text-transform:
+                uppercase;
+
+            color:
+                var(--text-muted);
+        }
+
+
+        .bubble {
+
+            padding:
+                13px 16px;
+
+            border:
+                1px solid var(--border);
+
+            border-radius:
+                15px;
+
+            background:
+                rgba(255, 255, 255, 0.035);
+
+            font-size:
+                14px;
+
+            line-height:
+                1.7;
+
+            color:
+                var(--text);
+
+            overflow-wrap:
+                anywhere;
+        }
+
+
+        .user .bubble {
+
+            border-color:
+                rgba(124, 108, 255, 0.22);
+
+            background:
+                linear-gradient(
+                    135deg,
+                    rgba(124, 108, 255, 0.16),
+                    rgba(124, 108, 255, 0.08)
+                );
+        }
+
+
+        /* =====================================================
+           STREAMING CURSOR
+        ===================================================== */
+
+        .streaming-cursor {
+
+            display:
+                inline-block;
+
+            width:
+                7px;
+
+            height:
+                17px;
+
+            margin-left:
+                4px;
+
+            vertical-align:
+                -3px;
+
+            border-radius:
+                2px;
+
+            background:
+                var(--accent-light);
+
+            animation:
+                cursorBlink 0.9s infinite;
+        }
+
+
+        @keyframes cursorBlink {
+
+            0%,
+            45% {
+                opacity: 1;
+            }
+
+            46%,
+            100% {
+                opacity: 0;
+            }
+        }
+
+
+        /* =====================================================
+           MARKDOWN
+        ===================================================== */
+
+        .bubble p {
+
+            margin:
+                0 0 12px;
+        }
+
+
+        .bubble p:last-child {
+
+            margin-bottom:
+                0;
+        }
+
+
+        .bubble h1,
+        .bubble h2,
+        .bubble h3 {
+
+            margin:
+                18px 0 9px;
+
+            line-height:
+                1.3;
+        }
+
+
+        .bubble h1:first-child,
+        .bubble h2:first-child,
+        .bubble h3:first-child {
+
+            margin-top:
+                0;
+        }
+
+
+        .bubble ul,
+        .bubble ol {
+
+            padding-left:
+                22px;
+        }
+
+
+        .bubble li {
+
+            margin:
+                5px 0;
+        }
+
+
+        .bubble code {
+
+            padding:
+                2px 5px;
+
+            border-radius:
+                5px;
+
+            background:
+                rgba(255, 255, 255, 0.07);
+
+            font-family:
+                monospace;
+
+            font-size:
+                12px;
+        }
+
+
+        .bubble pre {
+
+            overflow-x:
+                auto;
+
+            margin:
+                12px 0;
+
+            padding:
+                14px;
+
+            border:
+                1px solid var(--border);
+
+            border-radius:
+                10px;
+
+            background:
+                #080a0f;
+        }
+
+
+        .bubble pre code {
+
+            padding:
+                0;
+
+            background:
+                none;
+        }
+
+
+        .bubble blockquote {
+
+            margin:
+                12px 0;
+
+            padding-left:
+                13px;
+
+            border-left:
+                3px solid var(--accent);
+
+            color:
+                var(--text-secondary);
+        }
+
+
+        /* =====================================================
+           TOOL STATUS
+        ===================================================== */
+
+        .tool-status {
+
+            display:
+                none;
+
+            align-items:
+                center;
+
+            gap:
+                8px;
+
+            margin:
+                0 0 12px 44px;
+
+            font-size:
+                11px;
+
+            color:
+                var(--text-muted);
+        }
+
+
+        .tool-status.visible {
+
+            display:
+                flex;
+        }
+
+
+        .spinner {
+
+            width:
+                13px;
+
+            height:
+                13px;
+
+            border:
+                2px solid
+                rgba(255,255,255,0.12);
+
+            border-top-color:
+                var(--accent-light);
+
+            border-radius:
+                50%;
+
+            animation:
+                spin 0.8s linear infinite;
+        }
+
+
+        @keyframes spin {
+
+            to {
+
+                transform:
+                    rotate(360deg);
+            }
+        }
+
+
+        /* =====================================================
+           COMPOSER
+        ===================================================== */
+
+        .composer-wrap {
+
+            position:
+                absolute;
+
+            left:
+                0;
+
+            right:
+                0;
+
+            bottom:
+                0;
+
+            padding:
+                18px 28px 22px;
+
+            background:
+                linear-gradient(
+                    to top,
+                    var(--bg) 55%,
+                    transparent
+                );
+
+            pointer-events:
+                none;
+        }
+
+
+        .composer {
+
+            width:
+                min(900px, 100%);
+
+            margin:
+                0 auto;
+
+            pointer-events:
+                auto;
+        }
+
+
+        .input-box {
+
+            display:
+                flex;
+
+            align-items:
+                flex-end;
+
+            gap:
+                10px;
+
+            padding:
+                10px;
+
+            border:
+                1px solid var(--border-light);
+
+            border-radius:
+                17px;
+
+            background:
+                rgba(15, 18, 25, 0.92);
+
+            box-shadow:
+                var(--shadow);
+
+            backdrop-filter:
+                blur(20px);
+
+            transition:
+                0.2s ease;
+        }
+
+
+        .input-box:focus-within {
+
+            border-color:
+                rgba(124, 108, 255, 0.42);
+
+            box-shadow:
+                0 20px 70px
+                rgba(0, 0, 0, 0.42),
+
+                0 0 0 3px
+                rgba(124, 108, 255, 0.06);
+        }
+
+
+        .attach-btn {
+
+            display:
+                grid;
+
+            place-items:
+                center;
+
+            width:
+                39px;
+
+            height:
+                39px;
+
+            flex-shrink:
+                0;
+
+            border:
+                1px solid var(--border);
+
+            border-radius:
+                11px;
+
+            background:
+                rgba(255,255,255,0.035);
+
+            color:
+                var(--text-secondary);
+
+            transition:
+                0.2s ease;
+        }
+
+
+        .attach-btn:hover {
+
+            background:
+                rgba(255,255,255,0.07);
+
+            color:
+                var(--text);
+        }
+
+
+        #messageInput {
+
+            flex:
+                1;
+
+            min-height:
+                39px;
+
+            max-height:
+                150px;
+
+            padding:
+                9px 4px;
+
+            border:
+                none;
+
+            outline:
+                none;
+
+            resize:
+                none;
+
+            background:
+                transparent;
+
+            color:
+                var(--text);
+
+            font-size:
+                14px;
+
+            line-height:
+                1.45;
+        }
+
+
+        #messageInput::placeholder {
+
+            color:
+                var(--text-muted);
+        }
+
+
+        .send-btn {
+
+            display:
+                grid;
+
+            place-items:
+                center;
+
+            width:
+                40px;
+
+            height:
+                40px;
+
+            flex-shrink:
+                0;
+
+            border:
+                none;
+
+            border-radius:
+                12px;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    var(--accent),
+                    #5d82ff
+                );
+
+            color:
+                white;
+
+            box-shadow:
+                0 8px 25px
+                rgba(124, 108, 255, 0.25);
+
+            transition:
+                0.2s ease;
+        }
+
+
+        .send-btn:hover {
+
+            transform:
+                translateY(-1px);
+
+            filter:
+                brightness(1.08);
+        }
+
+
+        .send-btn:disabled {
+
+            cursor:
+                not-allowed;
+
+            opacity:
+                0.45;
+
+            transform:
+                none;
+        }
+
+
+        .composer-hint {
+
+            margin-top:
+                8px;
+
+            text-align:
+                center;
+
+            font-size:
+                10px;
+
+            color:
+                var(--text-muted);
+        }
+
+
+        /* =====================================================
+           MODAL
+        ===================================================== */
+
+        .modal-overlay {
+
+            position:
+                fixed;
+
+            inset:
+                0;
+
+            z-index:
+                100;
+
+            display:
+                none;
+
+            place-items:
+                center;
+
+            padding:
+                20px;
+
+            background:
+                rgba(0, 0, 0, 0.65);
+
+            backdrop-filter:
+                blur(10px);
+        }
+
+
+        .modal-overlay.open {
+
+            display:
+                grid;
+        }
+
+
+        .modal {
+
+            width:
+                min(500px, 100%);
+
+            padding:
+                22px;
+
+            border:
+                1px solid var(--border-light);
+
+            border-radius:
+                20px;
+
+            background:
+                #10141c;
+
+            box-shadow:
+                0 30px 100px
+                rgba(0,0,0,0.55);
+
+            animation:
+                modalIn 0.2s ease;
+        }
+
+
+        @keyframes modalIn {
+
+            from {
+
+                opacity:
+                    0;
+
+                transform:
+                    scale(0.97)
+                    translateY(10px);
+            }
+
+            to {
+
+                opacity:
+                    1;
+
+                transform:
+                    scale(1)
+                    translateY(0);
+            }
+        }
+
+
+        .modal-header {
+
+            display:
+                flex;
+
+            align-items:
+                center;
+
+            justify-content:
+                space-between;
+        }
+
+
+        .modal-title {
+
+            font-size:
+                17px;
+
+            font-weight:
+                700;
+        }
+
+
+        .modal-description {
+
+            margin:
+                7px 0 18px;
+
+            font-size:
+                12px;
+
+            line-height:
+                1.6;
+
+            color:
+                var(--text-secondary);
+        }
+
+
+        .drop-zone {
+
+            display:
+                flex;
+
+            flex-direction:
+                column;
+
+            align-items:
+                center;
+
+            justify-content:
+                center;
+
+            min-height:
+                190px;
+
+            padding:
+                25px;
+
+            border:
+                1px dashed
+                rgba(124, 108, 255, 0.4);
+
+            border-radius:
+                15px;
+
+            background:
+                rgba(124, 108, 255, 0.045);
+
+            text-align:
+                center;
+
+            transition:
+                0.2s ease;
+        }
+
+
+        .drop-zone.dragging {
+
+            background:
+                rgba(124, 108, 255, 0.12);
+
+            border-color:
+                var(--accent);
+        }
+
+
+        .drop-zone-icon {
+
+            display:
+                grid;
+
+            place-items:
+                center;
+
+            width:
+                48px;
+
+            height:
+                48px;
+
+            margin-bottom:
+                12px;
+
+            border-radius:
+                14px;
+
+            background:
+                var(--accent-soft);
+
+            color:
+                var(--accent-light);
+        }
+
+
+        .drop-zone strong {
+
+            font-size:
+                13px;
+        }
+
+
+        .drop-zone span {
+
+            margin-top:
+                5px;
+
+            font-size:
+                11px;
+
+            color:
+                var(--text-muted);
+        }
+
+
+        .selected-files {
+
+            display:
+                flex;
+
+            flex-direction:
+                column;
+
+            gap:
+                7px;
+
+            margin-top:
+                12px;
+
+            max-height:
+                150px;
+
+            overflow-y:
+                auto;
+        }
+
+
+        .selected-file {
+
+            display:
+                flex;
+
+            align-items:
+                center;
+
+            gap:
+                8px;
+
+            padding:
+                8px 10px;
+
+            border:
+                1px solid var(--border);
+
+            border-radius:
+                9px;
+
+            font-size:
+                11px;
+
+            color:
+                var(--text-secondary);
+        }
+
+
+        .modal-actions {
+
+            display:
+                flex;
+
+            justify-content:
+                flex-end;
+
+            gap:
+                8px;
+
+            margin-top:
+                18px;
+        }
+
+
+        .modal-btn {
+
+            padding:
+                10px 14px;
+
+            border:
+                1px solid var(--border);
+
+            border-radius:
+                10px;
+
+            background:
+                rgba(255,255,255,0.04);
+
+            color:
+                var(--text);
+
+            font-size:
+                12px;
+        }
+
+
+        .modal-btn.primary {
+
+            border-color:
+                transparent;
+
+            background:
+                var(--accent);
+
+            color:
+                white;
+        }
+
+
+        .modal-btn:disabled {
+
+            opacity:
+                0.45;
+
+            cursor:
+                not-allowed;
+        }
+
+
+        /* =====================================================
+           TOAST
+        ===================================================== */
+
+        .toast-container {
+
+            position:
+                fixed;
+
+            right:
+                20px;
+
+            bottom:
+                20px;
+
+            z-index:
+                200;
+
+            display:
+                flex;
+
+            flex-direction:
+                column;
+
+            gap:
+                8px;
+        }
+
+
+        .toast {
+
+            display:
+                flex;
+
+            align-items:
+                center;
+
+            gap:
+                9px;
+
+            max-width:
+                340px;
+
+            padding:
+                11px 14px;
+
+            border:
+                1px solid var(--border-light);
+
+            border-radius:
+                11px;
+
+            background:
+                #151a22;
+
+            box-shadow:
+                0 15px 40px
+                rgba(0,0,0,0.35);
+
+            font-size:
+                12px;
+
+            color:
+                var(--text);
+        }
+
+
+        .toast.success svg {
+
+            color:
+                var(--success);
+        }
+
+
+        .toast.error svg {
+
+            color:
+                var(--danger);
+        }
+
+
+        /* =====================================================
+           MOBILE
+        ===================================================== */
+
+        .mobile-menu {
+
+            display:
+                none;
+        }
+
+
+        @media (max-width: 800px) {
+
+            body {
+
+                overflow:
+                    hidden;
+            }
+
+
+            .app {
+
+                grid-template-columns:
+                    1fr;
+            }
+
+
+            .sidebar {
+
+                position:
+                    fixed;
+
+                z-index:
+                    80;
+
+                top:
+                    0;
+
+                bottom:
+                    0;
+
+                left:
+                    0;
+
+                width:
+                    280px;
+
+                transform:
+                    translateX(-100%);
+
+                transition:
+                    transform 0.25s ease;
+
+                box-shadow:
+                    30px 0 80px
+                    rgba(0,0,0,0.4);
+            }
+
+
+            .sidebar.open {
+
+                transform:
+                    translateX(0);
+            }
+
+
+            .mobile-menu {
+
+                display:
+                    grid;
+            }
+
+
+            .topbar {
+
+                padding:
+                    0 16px;
+            }
+
+
+            .chat-inner {
+
+                padding:
+                    32px 16px 165px;
+            }
+
+
+            .composer-wrap {
+
+                padding:
+                    12px 12px 17px;
+            }
+
+
+            .suggestions {
+
+                grid-template-columns:
+                    1fr;
+            }
+
+
+            .welcome {
+
+                padding-top:
+                    35px;
+            }
+
+
+            .welcome h1 {
+
+                font-size:
+                    31px;
+            }
+
+
+            .message-content {
+
+                max-width:
+                    88%;
+            }
+
+
+            .user .message-content {
+
+                max-width:
+                    88%;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+<div class="app">
+
+
+    <!-- =====================================================
+         SIDEBAR
+    ====================================================== -->
+
+    <aside
+        class="sidebar"
+        id="sidebar"
+    >
+
+        <div class="brand">
+
+            <div class="brand-icon">
+
+                <i data-lucide="sparkles"></i>
+
+            </div>
+
+            <div>
+
+                <div class="brand-name">
+                    OmniSearch AI
+                </div>
+
+                <div class="brand-subtitle">
+                    Research beyond the chat
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <button
+            class="new-chat-btn"
+            id="newChatBtn"
+        >
+
+            <i data-lucide="plus"></i>
+
+            New conversation
+
+        </button>
+
+
+        <div class="sidebar-section">
+
+            <div class="section-title">
+                Knowledge
+            </div>
+
+
+            <div class="document-panel">
+
+                <div class="document-header">
+
+                    <span
+                        class="document-count"
+                        id="documentCount"
+                    >
+                        No documents
+                    </span>
+
+                </div>
+
+
+                <button
+                    class="upload-btn"
+                    id="uploadBtn"
+                >
+
+                    <i data-lucide="upload"></i>
+
+                    Add PDF documents
+
+                </button>
+
+
+                <div
+                    class="file-list"
+                    id="fileList"
+                >
+
+                    <div class="empty-files">
+
+                        Upload PDFs to let OmniSearch
+                        answer using your own documents.
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="sidebar-section">
+
+            <div class="section-title">
+                What you can do
+            </div>
+
+
+            <div class="document-panel">
+
+                <div class="empty-files">
+
+                    <strong
+                        style="color: var(--text-secondary);"
+                    >
+                        📄 Documents
+                    </strong>
+
+                    <br>
+
+                    Ask questions about uploaded PDFs.
+
+                    <br><br>
+
+                    <strong
+                        style="color: var(--text-secondary);"
+                    >
+                        🌐 Web research
+                    </strong>
+
+                    <br>
+
+                    Search the internet when current
+                    information is needed.
+
+                    <br><br>
+
+                    <strong
+                        style="color: var(--text-secondary);"
+                    >
+                        🧠 Memory
+                    </strong>
+
+                    <br>
+
+                    Continue conversations naturally.
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="sidebar-bottom">
+
+            <button
+                class="danger-btn"
+                id="resetDocsBtn"
+            >
+
+                <i data-lucide="trash-2"></i>
+
+                Clear uploaded documents
+
+            </button>
+
+        </div>
+
+    </aside>
+
+
+    <!-- =====================================================
+         MAIN
+    ====================================================== -->
+
+    <main class="main">
+
+
+        <header class="topbar">
+
+            <div class="topbar-title">
+
+                <button
+                    class="icon-btn mobile-menu"
+                    id="mobileMenuBtn"
+                    aria-label="Open menu"
+                >
+
+                    <i data-lucide="menu"></i>
+
+                </button>
+
+
+                <span class="status-dot"></span>
+
+
+                <span>
+                    OmniSearch AI
+                </span>
+
+            </div>
+
+
+            <div class="topbar-actions">
+
+                <button
+                    class="icon-btn"
+                    id="clearChatBtn"
+                    title="New conversation"
+                >
+
+                    <i data-lucide="rotate-ccw"></i>
+
+                </button>
+
+            </div>
+
+        </header>
+
+
+        <!-- =================================================
+             CHAT
+        ================================================== -->
+
+        <section
+            class="chat"
+            id="chat"
+        >
+
+            <div class="chat-inner">
+
+
+                <div
+                    class="welcome"
+                    id="welcome"
+                >
+
+                    <div class="welcome-icon">
+
+                        <i
+                            data-lucide="brain-circuit"
+                            width="30"
+                            height="30"
+                        ></i>
+
+                    </div>
+
+
+                    <h1>
+
+                        Meet your
+
+                        <span>
+                            AI research assistant.
+                        </span>
+
+                    </h1>
+
+
+                    <p>
+
+                        Ask questions, search the web,
+                        or upload your own documents.
+                        OmniSearch combines your private
+                        knowledge with intelligent research
+                        tools in one place.
+
+                    </p>
+
+
+                    <div class="suggestions">
+
+
+                        <button
+                            class="suggestion"
+                            data-prompt="Explain what artificial intelligence is in simple terms."
+                        >
+
+                            <i
+                                data-lucide="lightbulb"
+                            ></i>
+
+                            <span>
+                                Explain a difficult topic simply
+                            </span>
+
+                        </button>
+
+
+                        <button
+                            class="suggestion"
+                            data-prompt="Search the web for the latest developments in generative AI."
+                        >
+
+                            <i
+                                data-lucide="globe-2"
+                            ></i>
+
+                            <span>
+                                Research something current
+                            </span>
+
+                        </button>
+
+
+                        <button
+                            class="suggestion"
+                            data-prompt="What documents have I uploaded?"
+                        >
+
+                            <i
+                                data-lucide="files"
+                            ></i>
+
+                            <span>
+                                Explore my uploaded documents
+                            </span>
+
+                        </button>
+
+
+                        <button
+                            class="suggestion"
+                            data-prompt="Give me five interesting questions I can ask an AI research assistant."
+                        >
+
+                            <i
+                                data-lucide="sparkles"
+                            ></i>
+
+                            <span>
+                                Give me ideas to explore
+                            </span>
+
+                        </button>
+
+
+                    </div>
+
+                </div>
+
+
+                <div
+                    class="messages"
+                    id="messages"
+                ></div>
+
+
+                <div
+                    class="tool-status"
+                    id="toolStatus"
+                >
+
+                    <div class="spinner"></div>
+
+                    <span id="toolStatusText">
+                        Thinking...
+                    </span>
+
+                </div>
+
+
+            </div>
+
+        </section>
+
+
+        <!-- =================================================
+             COMPOSER
+        ================================================== -->
+
+        <div class="composer-wrap">
+
+            <div class="composer">
+
+                <div class="input-box">
+
+
+                    <button
+                        class="attach-btn"
+                        id="attachBtn"
+                        title="Upload PDF"
+                    >
+
+                        <i data-lucide="paperclip"></i>
+
+                    </button>
+
+
+                    <textarea
+                        id="messageInput"
+                        rows="1"
+                        placeholder="Ask anything..."
+                        autocomplete="off"
+                    ></textarea>
+
+
+                    <button
+                        class="send-btn"
+                        id="sendBtn"
+                        title="Send message"
+                    >
+
+                        <i data-lucide="arrow-up"></i>
+
+                    </button>
+
+
+                </div>
+
+
+                <div class="composer-hint">
+
+                    Enter to send · Shift + Enter for a new line
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </main>
+
+</div>
+
+
+<!-- =========================================================
+     UPLOAD MODAL
+========================================================= -->
+
+<div
+    class="modal-overlay"
+    id="uploadModal"
+>
+
+    <div class="modal">
+
+
+        <div class="modal-header">
+
+            <div class="modal-title">
+                Add documents
+            </div>
+
+
+            <button
+                class="icon-btn"
+                id="closeModalBtn"
+            >
+
+                <i data-lucide="x"></i>
+
+            </button>
+
+        </div>
+
+
+        <p class="modal-description">
+
+            Upload one or more PDF files. OmniSearch
+            will index them so you can ask questions
+            about their content.
+
+        </p>
+
+
+        <div
+            class="drop-zone"
+            id="dropZone"
+        >
+
+            <div class="drop-zone-icon">
+
+                <i data-lucide="file-up"></i>
+
+            </div>
+
+
+            <strong>
+                Drop your PDFs here
+            </strong>
+
+
+            <span>
+                or click to browse · PDF only
+            </span>
+
+
+            <input
+                type="file"
+                id="fileInput"
+                accept=".pdf,application/pdf"
+                multiple
+                hidden
+            >
+
+        </div>
+
+
+        <div
+            class="selected-files"
+            id="selectedFiles"
+        ></div>
+
+
+        <div class="modal-actions">
+
+            <button
+                class="modal-btn"
+                id="cancelUploadBtn"
+            >
+                Cancel
+            </button>
+
+
+            <button
+                class="modal-btn primary"
+                id="confirmUploadBtn"
+                disabled
+            >
+                Upload documents
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- =========================================================
+     TOAST
+========================================================= -->
+
+<div
+    class="toast-container"
+    id="toastContainer"
+></div>
+
+
+<script>
+
+
+/* ============================================================
+   CONFIGURATION
+============================================================ */
+
+const API_BASE = "";
+
+
+/* ============================================================
+   LUCIDE
+============================================================ */
+
+function refreshIcons() {
+
+    if (
+        typeof lucide !==
+        "undefined"
+    ) {
+
+        lucide.createIcons();
+
+    }
+
+}
+
+
+/* ============================================================
+   SESSION
+============================================================ */
+
+let sessionId =
+    localStorage.getItem(
+        "omni_session_id"
+    );
+
+
+if (!sessionId) {
+
+    sessionId =
+        "session_" +
+        crypto.randomUUID();
+
+    localStorage.setItem(
+        "omni_session_id",
+        sessionId
+    );
+
+}
+
+
+/* ============================================================
+   ELEMENTS
+============================================================ */
+
+const sidebar =
+    document.getElementById(
+        "sidebar"
+    );
+
+const mobileMenuBtn =
+    document.getElementById(
+        "mobileMenuBtn"
+    );
+
+const welcome =
+    document.getElementById(
+        "welcome"
+    );
+
+const messages =
+    document.getElementById(
+        "messages"
+    );
+
+const chat =
+    document.getElementById(
+        "chat"
+    );
+
+const messageInput =
+    document.getElementById(
+        "messageInput"
+    );
+
+const sendBtn =
+    document.getElementById(
+        "sendBtn"
+    );
+
+const newChatBtn =
+    document.getElementById(
+        "newChatBtn"
+    );
+
+const clearChatBtn =
+    document.getElementById(
+        "clearChatBtn"
+    );
+
+const uploadBtn =
+    document.getElementById(
+        "uploadBtn"
+    );
+
+const attachBtn =
+    document.getElementById(
+        "attachBtn"
+    );
+
+const resetDocsBtn =
+    document.getElementById(
+        "resetDocsBtn"
+    );
+
+const uploadModal =
+    document.getElementById(
+        "uploadModal"
+    );
+
+const closeModalBtn =
+    document.getElementById(
+        "closeModalBtn"
+    );
+
+const cancelUploadBtn =
+    document.getElementById(
+        "cancelUploadBtn"
+    );
+
+const dropZone =
+    document.getElementById(
+        "dropZone"
+    );
+
+const fileInput =
+    document.getElementById(
+        "fileInput"
+    );
+
+const selectedFiles =
+    document.getElementById(
+        "selectedFiles"
+    );
+
+const confirmUploadBtn =
+    document.getElementById(
+        "confirmUploadBtn"
+    );
+
+const fileList =
+    document.getElementById(
+        "fileList"
+    );
+
+const documentCount =
+    document.getElementById(
+        "documentCount"
+    );
+
+const toolStatus =
+    document.getElementById(
+        "toolStatus"
+    );
+
+const toolStatusText =
+    document.getElementById(
+        "toolStatusText"
+    );
+
+const toastContainer =
+    document.getElementById(
+        "toastContainer"
+    );
+
+
+/* ============================================================
+   STATE
+============================================================ */
+
+let activeFiles =
+    JSON.parse(
+        localStorage.getItem(
+            `omni_files_${sessionId}`
+        ) || "[]"
+    );
+
+
+let isStreaming = false;
+
+let renderFrame = null;
+
+let pendingRender = null;
+
+
+/* ============================================================
+   HELPERS
+============================================================ */
+
+function saveFiles() {
+
+    localStorage.setItem(
+        `omni_files_${sessionId}`,
+        JSON.stringify(
+            activeFiles
+        )
+    );
+
+}
+
+
+function escapeHtml(
+    value
+) {
+
+    const div =
+        document.createElement(
+            "div"
+        );
+
+    div.textContent =
+        String(value);
+
+    return div.innerHTML;
+
+}
+
+
+function scrollToBottom() {
+
+    requestAnimationFrame(
+        () => {
+
+            chat.scrollTop =
+                chat.scrollHeight;
+
+        }
+    );
+
+}
+
+
+function showToast(
+    message,
+    type = "success"
+) {
+
+    const toast =
+        document.createElement(
+            "div"
+        );
+
+    toast.className =
+        `toast ${type}`;
+
+
+    const icon =
+        type === "error"
+            ? "circle-alert"
+            : "circle-check";
+
+
+    toast.innerHTML = `
+
+        <i data-lucide="${icon}"></i>
+
+        <span>
+            ${escapeHtml(message)}
+        </span>
+
+    `;
+
+
+    toastContainer.appendChild(
+        toast
+    );
+
+
+    refreshIcons();
+
+
+    setTimeout(
+        () => toast.remove(),
+        3500
+    );
+
+}
+
+
+function setToolStatus(
+    visible,
+    text = "Thinking..."
+) {
+
+    toolStatusText.textContent =
+        text;
+
+    toolStatus.classList.toggle(
+        "visible",
+        visible
+    );
+
+}
+
+
+function setLoading(
+    loading
+) {
+
+    isStreaming =
+        loading;
+
+    sendBtn.disabled =
+        loading;
+
+    messageInput.disabled =
+        loading;
+
+    attachBtn.disabled =
+        loading;
+
+
+    if (loading) {
+
+        setToolStatus(
+            true,
+            "Thinking..."
+        );
+
+    } else {
+
+        setToolStatus(
+            false
+        );
+
+    }
+
+}
+
+
+/* ============================================================
+   FILE LIST
+============================================================ */
+
+function renderFiles() {
+
+    if (!activeFiles.length) {
+
+        documentCount.textContent =
+            "No documents";
+
+
+        fileList.innerHTML = `
+
+            <div class="empty-files">
+
+                Upload PDFs to let OmniSearch
+                answer using your own documents.
+
+            </div>
+
+        `;
+
+        return;
+
+    }
+
+
+    documentCount.textContent =
+        `${activeFiles.length} document${
+            activeFiles.length === 1
+                ? ""
+                : "s"
+        }`;
+
+
+    fileList.innerHTML =
+        activeFiles
+            .map(
+                file => `
+
+                    <div class="file-item">
+
+                        <i
+                            data-lucide="file-text"
+                        ></i>
+
+                        <span class="file-name">
+
+                            ${escapeHtml(file)}
+
+                        </span>
+
+                    </div>
+
+                `
+            )
+            .join("");
+
+
+    refreshIcons();
+
+}
+
+
+renderFiles();
+
+
+/* ============================================================
+   ADD MESSAGE
+============================================================ */
+
+function addMessage(
+    role,
+    content = ""
+) {
+
+    const wrapper =
+        document.createElement(
+            "div"
+        );
+
+
+    wrapper.className =
+        `message ${role}`;
+
+
+    const avatarIcon =
+        role === "user"
+            ? "user"
+            : "sparkles";
+
+
+    const label =
+        role === "user"
+            ? "You"
+            : "OmniSearch";
+
+
+    wrapper.innerHTML = `
+
+        <div class="avatar">
+
+            <i
+                data-lucide="${avatarIcon}"
+            ></i>
+
+        </div>
+
+
+        <div class="message-content">
+
+            <div class="message-label">
+                ${label}
+            </div>
+
+
+            <div class="bubble"></div>
+
+        </div>
+
+    `;
+
+
+    if (role === "user") {
+
+        wrapper.style.flexDirection =
+            "row-reverse";
+
+    }
+
+
+    const bubble =
+        wrapper.querySelector(
+            ".bubble"
+        );
+
+
+    if (role === "assistant") {
+
+        renderMarkdown(
+            bubble,
+            content,
+            false
+        );
+
+    } else {
+
+        bubble.textContent =
+            content;
+
+    }
+
+
+    messages.appendChild(
+        wrapper
+    );
+
+
+    refreshIcons();
+
+    scrollToBottom();
+
+
+    return wrapper;
+
+}
+
+
+/* ============================================================
+   MARKDOWN RENDERING
+============================================================ */
+
+function renderMarkdown(
+    bubble,
+    content,
+    streaming = false
+) {
+
+    if (!bubble)
+        return;
+
+
+    let html;
+
+
+    if (
+        typeof marked !==
+        "undefined"
+    ) {
+
+        html =
+            marked.parse(
+                content || ""
+            );
+
+    } else {
+
+        html =
+            escapeHtml(
+                content || ""
+            );
+
+    }
+
+
+    if (streaming) {
+
+        html +=
+            `<span class="streaming-cursor"></span>`;
+
+    }
+
+
+    bubble.innerHTML =
+        html;
+
+}
+
+
+/* ============================================================
+   SMOOTH STREAM RENDERING
+============================================================ */
+
+function scheduleAssistantRender(
+    wrapper,
+    content,
+    streaming
+) {
+
+    pendingRender = {
+        wrapper,
+        content,
+        streaming
+    };
+
+
+    if (renderFrame !== null) {
+
+        return;
+
+    }
+
+
+    renderFrame =
+        requestAnimationFrame(
+            () => {
+
+                renderFrame =
+                    null;
+
+
+                if (!pendingRender)
+                    return;
+
+
+                const current =
+                    pendingRender;
+
+
+                pendingRender =
+                    null;
+
+
+                const bubble =
+                    current.wrapper
+                        .querySelector(
+                            ".bubble"
+                        );
+
+
+                renderMarkdown(
+                    bubble,
+                    current.content,
+                    current.streaming
+                );
+
+
+                scrollToBottom();
+
+            }
+        );
+
+}
+
+
+/* ============================================================
+   UPDATE ASSISTANT MESSAGE
+============================================================ */
+
+function updateAssistantMessage(
+    wrapper,
+    content,
+    streaming = false
+) {
+
+    scheduleAssistantRender(
+        wrapper,
+        content,
+        streaming
+    );
+
+}
+
+
+/* ============================================================
+   SEND MESSAGE
+============================================================ */
+
+async function sendMessage(
+    customMessage = null
+) {
+
+    const text =
+        customMessage !== null
+            ? customMessage.trim()
+            : messageInput.value.trim();
+
+
+    if (!text)
+        return;
+
+
+    if (isStreaming)
+        return;
+
+
+    welcome.style.display =
+        "none";
+
+
+    /* --------------------------------------------------------
+       USER MESSAGE
+    -------------------------------------------------------- */
+
+    addMessage(
+        "user",
+        text
+    );
+
+
+    messageInput.value =
+        "";
+
+
+    autoResize();
+
+
+    /* --------------------------------------------------------
+       LOCK UI
+    -------------------------------------------------------- */
+
+    setLoading(
+        true
+    );
+
+
+    /* --------------------------------------------------------
+       ASSISTANT MESSAGE
+    -------------------------------------------------------- */
+
+    const assistantWrapper =
+        addMessage(
+            "assistant",
+            ""
+        );
+
+
+    let accumulated =
+        "";
+
+
+    try {
+
+        /* ----------------------------------------------------
+           REQUEST
+        ---------------------------------------------------- */
+
+        const response =
+            await fetch(
+                `${API_BASE}/chat`,
+                {
+                    method:
+                        "POST",
+
+                    headers: {
+
+                        "Content-Type":
+                            "application/json",
+
+                        "Accept":
+                            "text/plain"
+
+                    },
+
+                    body:
+                        JSON.stringify({
+
+                            session_id:
+                                sessionId,
+
+                            query:
+                                text
+
+                        })
+                }
+            );
+
+
+        if (!response.ok) {
+
+            const errorText =
+                await response.text();
+
+
+            throw new Error(
+                `Chat request failed (${response.status}): ${errorText}`
+            );
+
+        }
+
+
+        if (!response.body) {
+
+            throw new Error(
+                "The server did not return a response stream."
+            );
+
+        }
+
+
+        /* ----------------------------------------------------
+           STREAM
+        ---------------------------------------------------- */
+
+        const reader =
+            response.body.getReader();
+
+
+        const decoder =
+            new TextDecoder(
+                "utf-8"
+            );
+
+
+        let firstToken =
+            true;
+
+
+        while (true) {
+
+            const {
+                value,
+                done
+            } =
+                await reader.read();
+
+
+            if (done)
+                break;
+
+
+            const chunk =
+                decoder.decode(
+                    value,
+                    {
+                        stream: true
+                    }
+                );
+
+
+            if (!chunk)
+                continue;
+
+
+            accumulated +=
+                chunk;
+
+
+            if (firstToken) {
+
+                firstToken =
+                    false;
+
+
+                setToolStatus(
+                    true,
+                    "Generating..."
+                );
+
+            }
+
+
+            updateAssistantMessage(
+                assistantWrapper,
+                accumulated,
+                true
+            );
+
+        }
+
+
+        /* ----------------------------------------------------
+           FLUSH DECODER
+        ---------------------------------------------------- */
+
+        const remaining =
+            decoder.decode();
+
+
+        if (remaining) {
+
+            accumulated +=
+                remaining;
+
+        }
+
+
+        /* ----------------------------------------------------
+           FINAL RENDER
+        ---------------------------------------------------- */
+
+        updateAssistantMessage(
+            assistantWrapper,
+            accumulated,
+            false
+        );
+
+
+        /* ----------------------------------------------------
+           EMPTY RESPONSE
+        ---------------------------------------------------- */
+
+        if (!accumulated.trim()) {
+
+            updateAssistantMessage(
+                assistantWrapper,
+                "The server returned an empty response.",
+                false
+            );
+
+
+            showToast(
+                "The server returned an empty response.",
+                "error"
+            );
+
+        }
+
+
+    } catch (error) {
+
+        console.error(
+            "Streaming error:",
+            error
+        );
+
+
+        updateAssistantMessage(
+            assistantWrapper,
+
+            `❌ **Error:** ${error.message}`,
+
+            false
+        );
+
+
+        showToast(
+            error.message ||
+            "Something went wrong.",
+            "error"
+        );
+
+
+    } finally {
+
+        setLoading(
+            false
+        );
+
+
+        messageInput.focus();
+
+    }
+
+}
+
+
+/* ============================================================
+   TEXTAREA
+============================================================ */
+
+function autoResize() {
+
+    messageInput.style.height =
+        "auto";
+
+
+    messageInput.style.height =
+        Math.min(
+            messageInput.scrollHeight,
+            150
+        ) + "px";
+
+}
+
+
+messageInput.addEventListener(
+    "input",
+    autoResize
+);
+
+
+messageInput.addEventListener(
+    "keydown",
+    event => {
+
+        if (
+            event.key === "Enter" &&
+            !event.shiftKey
+        ) {
+
+            event.preventDefault();
+
+            sendMessage();
+
+        }
+
+    }
+);
+
+
+sendBtn.addEventListener(
+    "click",
+    () => sendMessage()
+);
+
+
+/* ============================================================
+   SUGGESTIONS
+============================================================ */
+
+document
+    .querySelectorAll(
+        ".suggestion"
+    )
+    .forEach(
+        button => {
+
+            button.addEventListener(
+                "click",
+                () => {
+
+                    if (isStreaming)
+                        return;
+
+
+                    sendMessage(
+                        button.dataset.prompt
+                    );
+
+                }
+            );
+
+        }
+    );
+
+
+/* ============================================================
+   NEW CHAT
+============================================================ */
+
+function createNewSession() {
+
+    if (isStreaming)
+        return;
+
+
+    const oldSession =
+        sessionId;
+
+
+    localStorage.removeItem(
+        `omni_files_${oldSession}`
+    );
+
+
+    sessionId =
+        "session_" +
+        crypto.randomUUID();
+
+
+    localStorage.setItem(
+        "omni_session_id",
+        sessionId
+    );
+
+
+    activeFiles =
+        [];
+
+
+    messages.innerHTML =
+        "";
+
+
+    welcome.style.display =
+        "flex";
+
+
+    renderFiles();
+
+
+    showToast(
+        "New conversation started."
+    );
+
+
+    sidebar.classList.remove(
+        "open"
+    );
+
+}
+
+
+newChatBtn.addEventListener(
+    "click",
+    createNewSession
+);
+
+
+clearChatBtn.addEventListener(
+    "click",
+    createNewSession
+);
+
+
+/* ============================================================
+   MOBILE SIDEBAR
+============================================================ */
+
+mobileMenuBtn.addEventListener(
+    "click",
+    () => {
+
+        sidebar.classList.toggle(
+            "open"
+        );
+
+    }
+);
+
+
+/* ============================================================
+   UPLOAD MODAL
+============================================================ */
+
+function openUploadModal() {
+
+    if (isStreaming)
+        return;
+
+
+    uploadModal.classList.add(
+        "open"
+    );
+
+
+    selectedFiles.innerHTML =
+        "";
+
+
+    fileInput.value =
+        "";
+
+
+    confirmUploadBtn.disabled =
+        true;
+
+}
+
+
+function closeUploadModal() {
+
+    uploadModal.classList.remove(
+        "open"
+    );
+
+}
+
+
+uploadBtn.addEventListener(
+    "click",
+    openUploadModal
+);
+
+
+attachBtn.addEventListener(
+    "click",
+    openUploadModal
+);
+
+
+closeModalBtn.addEventListener(
+    "click",
+    closeUploadModal
+);
+
+
+cancelUploadBtn.addEventListener(
+    "click",
+    closeUploadModal
+);
+
+
+uploadModal.addEventListener(
+    "click",
+    event => {
+
+        if (
+            event.target ===
+            uploadModal
+        ) {
+
+            closeUploadModal();
+
+        }
+
+    }
+);
+
+
+/* ============================================================
+   FILE SELECTION
+============================================================ */
+
+dropZone.addEventListener(
+    "click",
+    () => fileInput.click()
+);
+
+
+fileInput.addEventListener(
+    "change",
+    () => {
+
+        showSelectedFiles(
+            Array.from(
+                fileInput.files
+            )
+        );
+
+    }
+);
+
+
+function showSelectedFiles(
+    files
+) {
+
+    const pdfFiles =
+        files.filter(
+            file =>
+                file.type ===
+                    "application/pdf" ||
+                file.name
+                    .toLowerCase()
+                    .endsWith(".pdf")
+        );
+
+
+    if (!pdfFiles.length) {
+
+        selectedFiles.innerHTML = `
+
+            <div class="empty-files">
+
+                Please select PDF files.
+
+            </div>
+
+        `;
+
+
+        confirmUploadBtn.disabled =
+            true;
+
+
+        return;
+
+    }
+
+
+    selectedFiles.innerHTML =
+        pdfFiles
+            .map(
+                file => `
+
+                    <div class="selected-file">
+
+                        <i
+                            data-lucide="file-text"
+                            style="width:14px;"
+                        ></i>
+
+                        <span class="file-name">
+
+                            ${escapeHtml(
+                                file.name
+                            )}
+
+                        </span>
+
+                    </div>
+
+                `
+            )
+            .join("");
+
+
+    refreshIcons();
+
+
+    confirmUploadBtn.disabled =
+        false;
+
+}
+
+
+/* ============================================================
+   DRAG & DROP
+============================================================ */
+
+[
+    "dragenter",
+    "dragover"
+].forEach(
+    eventName => {
+
+        dropZone.addEventListener(
+            eventName,
+            event => {
+
+                event.preventDefault();
+
+                dropZone.classList.add(
+                    "dragging"
+                );
+
+            }
+        );
+
+    }
+);
+
+
+[
+    "dragleave",
+    "drop"
+].forEach(
+    eventName => {
+
+        dropZone.addEventListener(
+            eventName,
+            event => {
+
+                event.preventDefault();
+
+                dropZone.classList.remove(
+                    "dragging"
+                );
+
+            }
+        );
+
+    }
+);
+
+
+dropZone.addEventListener(
+    "drop",
+    event => {
+
+        const files =
+            Array.from(
+                event.dataTransfer.files
+            );
+
+
+        showSelectedFiles(
+            files
+        );
+
+
+        const dataTransfer =
+            new DataTransfer();
+
+
+        files.forEach(
+            file => {
+
+                if (
+                    file.type ===
+                        "application/pdf" ||
+                    file.name
+                        .toLowerCase()
+                        .endsWith(".pdf")
+                ) {
+
+                    dataTransfer.items.add(
+                        file
+                    );
+
+                }
+
+            }
+        );
+
+
+        fileInput.files =
+            dataTransfer.files;
+
+    }
+);
+
+
+/* ============================================================
+   UPLOAD
+============================================================ */
+
+confirmUploadBtn.addEventListener(
+    "click",
+    async () => {
+
+        const files =
+            Array.from(
+                fileInput.files
+            );
+
+
+        if (!files.length)
+            return;
+
+
+        confirmUploadBtn.disabled =
+            true;
+
+
+        confirmUploadBtn.textContent =
+            "Uploading...";
+
+
+        const formData =
+            new FormData();
+
+
+        formData.append(
+            "session_id",
+            sessionId
+        );
+
+
+        files.forEach(
+            file => {
+
+                formData.append(
+                    "files",
+                    file
+                );
+
+            }
+        );
+
+
+        try {
+
+            const response =
+                await fetch(
+                    `${API_BASE}/upload`,
+                    {
+                        method:
+                            "POST",
+
+                        body:
+                            formData
+                    }
+                );
+
+
+            const data =
+                await response.json();
+
+
+            if (!response.ok) {
+
+                throw new Error(
+                    data.detail ||
+                    "Upload failed."
+                );
+
+            }
+
+
+            if (!data.success) {
+
+                throw new Error(
+                    data.error ||
+                    "Upload failed."
+                );
+
+            }
+
+
+            const uploaded =
+                data.uploaded || [];
+
+
+            uploaded.forEach(
+                file => {
+
+                    if (
+                        !activeFiles.includes(
+                            file.filename
+                        )
+                    ) {
+
+                        activeFiles.push(
+                            file.filename
+                        );
+
+                    }
+
+                }
+            );
+
+
+            saveFiles();
+
+            renderFiles();
+
+            closeUploadModal();
+
+
+            showToast(
+                `${uploaded.length} document${
+                    uploaded.length === 1
+                        ? ""
+                        : "s"
+                } uploaded successfully.`
+            );
+
+
+        } catch (error) {
+
+            console.error(
+                error
+            );
+
+
+            showToast(
+                error.message ||
+                "Upload failed.",
+                "error"
+            );
+
+
+        } finally {
+
+            confirmUploadBtn.disabled =
+                false;
+
+
+            confirmUploadBtn.textContent =
+                "Upload documents";
+
+        }
+
+    }
+);
+
+
+/* ============================================================
+   RESET DOCUMENTS
+============================================================ */
+
+resetDocsBtn.addEventListener(
+    "click",
+    async () => {
+
+        if (!activeFiles.length) {
+
+            showToast(
+                "There are no documents to clear."
+            );
+
+            return;
+
+        }
+
+
+        const confirmed =
+            confirm(
+                "Clear all uploaded documents for this conversation?"
+            );
+
+
+        if (!confirmed)
+            return;
+
+
+        try {
+
+            const response =
+                await fetch(
+                    `${API_BASE}/reset_docs`,
+                    {
+                        method:
+                            "POST",
+
+                        headers: {
+
+                            "Content-Type":
+                                "application/json"
+
+                        },
+
+                        body:
+                            JSON.stringify({
+
+                                session_id:
+                                    sessionId
+
+                            })
+
+                    }
+                );
+
+
+            const data =
+                await response.json();
+
+
+            if (!response.ok) {
+
+                throw new Error(
+                    data.detail ||
+                    "Failed to clear documents."
+                );
+
+            }
+
+
+            activeFiles =
+                [];
+
+
+            saveFiles();
+
+            renderFiles();
+
+
+            showToast(
+                "Uploaded documents cleared."
+            );
+
+
+        } catch (error) {
+
+            console.error(
+                error
+            );
+
+
+            showToast(
+                error.message ||
+                "Failed to clear documents.",
+                "error"
+            );
+
+        }
+
+    }
+);
+
+
+/* ============================================================
+   INITIAL ICONS
+============================================================ */
+
+refreshIcons();
+
+
+</script>
+
+</body>
+
+</html>

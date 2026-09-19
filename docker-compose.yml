@@ -1,0 +1,14 @@
+version: '3.8'
+
+services:
+  omnisearch:
+    build: .
+    container_name: omnisearch_app
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    volumes:
+      # Persists temporary uploads so you don't lose files when the container restarts
+      - ./temp_uploads:/app/temp_uploads
+    restart: unless-stopped
